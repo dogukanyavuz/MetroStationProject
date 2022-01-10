@@ -1,9 +1,6 @@
 package com.example.MetroStationProject.service.impl;
 
-import com.example.MetroStationProject.dto.CardDto;
-import com.example.MetroStationProject.dto.UseMetroDto;
-import com.example.MetroStationProject.dto.UseMetroResponseDto;
-import com.example.MetroStationProject.dto.UserDetailsDto;
+import com.example.MetroStationProject.dto.*;
 import com.example.MetroStationProject.model.Card;
 import com.example.MetroStationProject.model.Metro;
 import com.example.MetroStationProject.repository.CardRepository;
@@ -30,44 +27,40 @@ public class MetroStationServiceImpl implements MetroStationService {
 
     @Override
     public UseMetroResponseDto getOn(UserDetailsDto userDetailsDto, Long cardId, UseMetroDto useMetroDto) {
-        Metro metro = this.metroRepository.findById(cardId)
+        Card isCardExist = this.cardRepository.findById(cardId)
                 .orElseThrow(() -> new EntityNotFoundException());
 
-        long balance = this.cardRepository.findById(cardId).get().balance;
+        long existingBalance = isCardExist.balance;
         int stationNumber = 0;
 
-        if (balance >= 5){
-            stationNumber = useMetroDto.getDestinationStation().ordinal() - useMetroDto.getStationName().ordinal();
-            balance = balance - 5;
+        if (existingBalance >= 5){
+            stationNumber = Math.abs(useMetroDto.getStationName().ordinal() - useMetroDto.getDestinationStation().ordinal());
+            existingBalance = existingBalance - 5;
         }
         else {
             String message = "Not enough money for using metro";
             log.info(message);
         }
 
-        Card card1 = cardRepository.findById(cardId).get();
-        Card card = Card.builder()
-                .cardNo(card1.getCardNo())
-                .userId(card1.getUserId())
-                .balance(balance)
-                .build();
-        cardRepository.save(card);
+        isCardExist.setBalance(existingBalance);
+        cardRepository.save(isCardExist);
 
         return UseMetroResponseDto.builder()
                 .stationNumber(stationNumber)
-                .balance(card.getBalance())
+                .balance(existingBalance)
                 .user(userDetailsDto.getUser())
                 .build();
     }
 
     @Override
-    public Card addMoney(CardDto cardDto, Long cardId) {
+    public Card addMoney(UserDetailsDto userDetailsDto, CardBalanceDto cardBalanceDto, Long cardId, Long money) {
 
         Card card = cardRepository.findById(cardId).get();
         Card resultCard = Card.builder()
+                .id(cardId)
                 .cardNo(card.getCardNo())
                 .userId(card.getUserId())
-                .balance(cardDto.money)
+                .balance(card.getBalance()+money)
                 .build();
         return resultCard;
     }

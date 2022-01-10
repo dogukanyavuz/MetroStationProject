@@ -1,5 +1,6 @@
 package com.example.MetroStationProject.service.impl;
 
+import com.example.MetroStationProject.dto.CardBalanceDto;
 import com.example.MetroStationProject.dto.CardDto;
 import com.example.MetroStationProject.dto.UserDetailsDto;
 import com.example.MetroStationProject.model.Card;
@@ -25,7 +26,7 @@ public class CardServiceImpl implements CardService {
         Card card = Card.builder()
                 .userId(userDetailsDto.getUser().getId())
                 .cardNo(cardDto.cardNo)
-                .balance(cardDto.balance)
+                .balance(cardDto.getBalance())
                 .build();
         return this.cardRepository.save(card);
     }
