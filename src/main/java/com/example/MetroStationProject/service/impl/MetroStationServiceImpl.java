@@ -60,7 +60,7 @@ public class MetroStationServiceImpl implements MetroStationService {
                 .id(cardId)
                 .cardNo(card.getCardNo())
                 .userId(card.getUserId())
-                .balance(card.getBalance()+money)
+                .balance((card.getBalance()+money)-10)
                 .build();
         return resultCard;
     }
